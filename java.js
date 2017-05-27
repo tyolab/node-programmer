@@ -9,7 +9,14 @@ var fs = require('fs'),
 
 var log = console; // require('./log');
 var params = require('./params');
-var jsonFile = process.argv[2];
+
+var opts = params.getOpts();
+
+var longOpts = opts['--'];
+var shortOpts = opts['-'];
+var inputs = opts.inputs;
+
+var jsonFile = Array.isArray(inputs) ? inputs[0] : inputs;
 var jsonString = fs.readFileSync(jsonFile, 'utf8').trim();
 var datatype = require('tyo-utils').dataype;
 var javatype = require('./lib/java/type');
@@ -19,9 +26,6 @@ var firstC, lastC;
 firstC = jsonString.charAt(0);
 lastC = jsonString[jsonString.length - 1];
 jsonString = ((firstC !== '{' && firstC !== '[') ? '{' : '') + jsonString + ((lastC !== '}' && lastC !== ']') ? '}' : '');
-
-var longOpts = params['--'];
-var shortOpts = params['-'];
 
 var jsonTemplate = "%";
 if (longOpts.class)
@@ -33,10 +37,30 @@ var jsonObj;
 try {
     jsonObj = JSON.parse(jsonString);
     var fieldsOut = "";
+    var prefix = longOpts.prefix || shortOpts.p || "";
+    var suffix = longOpts.suffix || shortOpts.toJavaTypeString || "";
     for (var key in jsonObj) {
         var value = jsonObj[key];
-        var type = javatype.toJavaTypeString(value);
-        var fieldOut = 'public ' + type + ' ' + key + ';';
+        var type = "";
+        var fieldOut = "";
+        if (!!longOpts.type) {
+            type = javatype.toJavaTypeString(value);
+            
+            if (!!longOpts.camelcase) {
+                type = type.charAt(0).toUpperCase() + type.substr(1);
+            }
+
+            if (datatype.isString(longOpts.type))
+                type += longOpts.type;
+            else
+                type += ' ';
+        }
+        else {
+            //
+        }
+
+        fieldOut = prefix + type + key + suffix;
+
         fieldsOut += fieldOut + '\n';
     }
     console.log(fieldsOut);
