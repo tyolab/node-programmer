@@ -58,8 +58,10 @@ try {
         else {
             //
         }
-
-        fieldOut = prefix + type + key + suffix;
+        if (longOpts['key-before-all'])
+            fieldOut = key + prefix + type + suffix;
+        else
+            fieldOut = prefix + type + key + suffix;
 
         fieldsOut += fieldOut + '\n';
     }
