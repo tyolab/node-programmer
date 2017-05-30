@@ -44,7 +44,7 @@ try {
         var type = "";
         var fieldOut = "";
         if (!!longOpts.type) {
-            type = javatype.toJavaTypeString(value);
+            type = javatype.toJavaTypeString(value, {serialize: !!longOpts.serialize});
             
             if (!!longOpts.camelcase) {
                 type = type.charAt(0).toUpperCase() + type.substr(1);

@@ -1,27 +1,6 @@
-                {
-                    "vpid": "PARENT_PLRBClVey5Bqxe30fb2Lt6q_JAqgkxPByX",
-                    "content_type": "TV",
-                    "title": "思美人",
-                    "year": "2017",
-                    "area": "大陆",
-                    "img_big": "http://69.169.34.42/g3/M00/CE/EB/RakiD1kL9qyAY_MmAAQUHUqoiFA470.jpg",
-                    "img_normal": "http://69.169.34.42/g2/M00/6D/E4/RakiDVkL9quAaUPhAAF0pxPk_5I052.jpg",
-                    "img_small": "http://69.169.34.42/g3/M00/CF/E3/RakiD1kL9qyAA9_CAADk36hpE6w535.jpg",
-                    "director": "",
-                    "actor": "马可 张馨予 乔振宇",
-                    "tag": "古装;青春;爱情;",
-                    "episode_count": "78",
-                    "episode": "22",
-                    "score": "0.0",
-                    "evaluate_num": 0,
-                    "duration": "0",
-                    "source": "YouTube",
-                    "source_code": "PLRBClVey5Bqxe30fb2Lt6q_JAqgkxPByX",
-                    "source_release_time": 1493347274000,
-                    "release_time": 1493670328332,
-                    "desc": "中国战国时期，群雄争锋。生于名门的屈原（马可饰），机缘巧合爱上了民间女奴莫愁女（张馨予饰）。然而，身处内忧外患、危机重重的楚国，二人虽相知相恋，却不能相守相依。为了冲破命运的桎梏，二人不畏门第之别，相爱相惜，在同恶霸与权贵的斗争中卷入了宫斗权争、家国情仇的漩涡。与此同时，身负宏才大略的屈原，一步步踏上了拯危救国、九死不悔的旅程。有心报国，无力回天，屈原终万念俱灰，痛沉于汨罗江；莫愁女则驾舟去远，从此荡舟江湖。",
-                    "channel": "偶像剧场 四月巨献《漂洋过海来看你》朱亚文&王丽坤",
-                    "column_prop_term": "",
-                    "column_prop_pabel": "",
-                    "specialid": "PLRBClVey5Bqxe30fb2Lt6q_JAqgkxPByX"
-                }
+{
+                                "id": "FKftDnszgIQ", 
+                                "type": "VOD_RES",
+                                "ctype": "MOVIE",
+                                "stype": "YOUTUBE"
+}
