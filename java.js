@@ -12,17 +12,18 @@ var params = require('./params');
 
 var optCount = params.getOptCount();
 var opts = params.getOpts();
-
-if (optCount === 0) {
-    params.setUsage({
+var optsAvailable = {
         'key-before-all': false, 
-        prefix: {desc: '"a-prefix-string"', default: "public "}, 
-        suffix: {desc: '"a-suffix-string"', default: ";"}, 
-        "to-java-type": true, 
+        prefix: {desc: '"a-prefix-string"', default: "public ", short: 'p', input: null}, 
+        suffix: {desc: '"a-suffix-string"', default: ";", short: 's', input: null}, 
+        "to-java-type": null, 
         camelcase: true, 
         class: false, 
         serialize: false
-    });
+    }
+
+if (optCount === 0) {
+    params.setUsage(optsAvailable);
     params.showUsage();
     process.exit(-1);
 }
@@ -52,8 +53,8 @@ var jsonObj;
 try {
     jsonObj = JSON.parse(jsonString);
     var fieldsOut = "";
-    var prefix = longOpts.prefix || shortOpts.p || "";
-    var suffix = longOpts.suffix || shortOpts.s || "";
+    var prefix = longOpts.prefix || shortOpts.p || optsAvailable.prefix.default;
+    var suffix = longOpts.suffix || shortOpts.s || optsAvailable.suffix.default;
     for (var key in jsonObj) {
         var value = jsonObj[key];
         var type = "";

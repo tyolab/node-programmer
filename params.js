@@ -68,6 +68,11 @@ Params.prototype.getOpts = function () {
                  */
                 if (nextParam < process.argv.length && process.argv[nextParam].charAt(0) !== '-' && nextParam != (process.argv.length - 1)) {
                     nextValue = process.argv[nextParam];
+
+                    if (nextValue === 'true')
+                        nextValue = true;
+                    else if (nextValue === 'false')
+                        nextValue = false;
                 }
 
                 if (nextValue === null)
