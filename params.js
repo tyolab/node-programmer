@@ -131,23 +131,27 @@ Params.prototype.showUsage = function (filename) {
     var optStr = "";
     for (var key in this.opts) {
         optStr = optStr + " ";
+
+        var switchStr;
         if (key.length === 1)
-            optStr += "-" + key;
+            switchStr = "-" + key;
         else
-            optStr += "--" + key;
+            switchStr = "--" + key;
         
+        optStr += switchStr;
+
         var objValue = this.opts[key];
         var value = null;
         if (objValue !== null) {
             if ((typeof objValue) === 'object') {
-                objValue.switch = optStr;
+                objValue.switch = switchStr;
                 if (objValue.sample !== null)
                     value = objValue.sample;
             }
             else {
                 value = objValue;
-                var obj = {switch: optStr, default: objValue};
-                objValue = obj;
+                var obj = {switch: switchStr, default: objValue};
+                this.opts[key] = obj;
             }
         }
 
@@ -158,10 +162,12 @@ Params.prototype.showUsage = function (filename) {
     console.error('\t' + msg + optStr);
     console.error();
     for (var key in this.opts) {
-        if (this.opts[key].desc)
-            console.error('\t\t' + this.opts[key].switch + '\t\t' + this.opts[key].desc);
-                if (this.opts[key].desc)
-            console.error('\t\t' + this.opts[key].switch + '\t\t' + 'default: ' + this.opts[key].default);  
+        var objValue = this.opts[key];
+        if (objValue && objValue.desc) {
+            console.error('\t\t' + objValue.switch + '\t\t' + objValue.desc);
+            console.error('\t\t\t\t' + '\t' + 'default: "' + objValue.default + '"');
+            console.error();
+        }
     }
 }
 

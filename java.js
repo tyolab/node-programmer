@@ -16,9 +16,9 @@ var opts = params.getOpts();
 if (optCount === 0) {
     params.setUsage({
         'key-before-all': false, 
-        prefix: '"a-prefix-string"', 
-        suffix: '"a-suffix-string"', 
-        "to-java-type": '"a-java-type"', 
+        prefix: {desc: '"a-prefix-string"', default: "public "}, 
+        suffix: {desc: '"a-suffix-string"', default: ";"}, 
+        "to-java-type": true, 
         camelcase: true, 
         class: false, 
         serialize: false
