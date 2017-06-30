@@ -10,7 +10,22 @@ var fs = require('fs'),
 var log = console; // require('./log');
 var params = require('./params');
 
+var optCount = params.getOptCount();
 var opts = params.getOpts();
+
+if (optCount === 0) {
+    params.setUsage({
+        'key-before-all': false, 
+        prefix: '"a-prefix-string"', 
+        suffix: '"a-suffix-string"', 
+        "to-java-type": '"a-java-type"', 
+        camelcase: true, 
+        class: false, 
+        serialize: false
+    });
+    params.showUsage();
+    process.exit(-1);
+}
 
 var longOpts = opts['--'];
 var shortOpts = opts['-'];
@@ -38,20 +53,20 @@ try {
     jsonObj = JSON.parse(jsonString);
     var fieldsOut = "";
     var prefix = longOpts.prefix || shortOpts.p || "";
-    var suffix = longOpts.suffix || shortOpts.toJavaTypeString || "";
+    var suffix = longOpts.suffix || shortOpts.s || "";
     for (var key in jsonObj) {
         var value = jsonObj[key];
         var type = "";
         var fieldOut = "";
-        if (!!longOpts.type) {
+        if (!!longOpts["to-java-type"]) {
             type = javatype.toJavaTypeString(value, {serialize: !!longOpts.serialize});
             
             if (!!longOpts.camelcase) {
                 type = type.charAt(0).toUpperCase() + type.substr(1);
             }
 
-            if (datatype.isString(longOpts.type))
-                type += longOpts.type;
+            if (datatype.isString(longOpts["to-java-type"]))
+                type += longOpts["to-java-type"];
             else
                 type += ' ';
         }

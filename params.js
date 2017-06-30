@@ -5,6 +5,18 @@
 const datatype = require('tyo-utils').dataype;
 
 function Params(defaults) {
+    this.optCount = -1;
+
+    // { name: {desc: "", default: value, sample: value}}
+    /**
+     * Avaliable Options
+     */
+    this.opts = {};
+
+    /**
+     * Parsed User Parameters
+     */
+    this.params = null;
 }
 
 /**
@@ -29,10 +41,17 @@ Params.prototype.append = function (obj, value) {
  */
 
 Params.prototype.getOpts = function () {
+    if (this.optCount > -1)
+        return this.params;
+
+    this.optCount = 0;
+
     var params = {'-': {}, '--': {}, inputs: null};
     var param = 2;
     if (process.argv.length > 2) {
         for (; param < process.argv.length; ++param) {
+            this.optCount += 1;
+
             var paramStr = process.argv[param];
             var o = paramStr.charAt(0);
             if (o === '-' && paramStr.length > 2) {
@@ -71,7 +90,18 @@ Params.prototype.getOpts = function () {
         }
     }
 
-    return params;
+    return (this.params = params);
+}
+
+/**
+ * Get Input Argument Count
+ */
+
+Params.prototype.getOptCount = function () {
+    if (this.optCount == -1)
+        this.getOpts();
+
+    return this.optCount;
 }
 
 /**
@@ -80,6 +110,59 @@ Params.prototype.getOpts = function () {
 
 Params.prototype.newInstance = function (defaults) {
     return new Params(defaults);
+}
+
+/**
+ * 
+ */
+
+Params.prototype.setUsage = function (opts) {
+    this.opts = opts;
+}
+
+/**
+ * Return Usage
+ */
+
+Params.prototype.showUsage = function (filename) {
+    filename = filename || ".";
+
+    var msg = "node " + filename;
+    var optStr = "";
+    for (var key in this.opts) {
+        optStr = optStr + " ";
+        if (key.length === 1)
+            optStr += "-" + key;
+        else
+            optStr += "--" + key;
+        
+        var objValue = this.opts[key];
+        var value = null;
+        if (objValue !== null) {
+            if ((typeof objValue) === 'object') {
+                objValue.switch = optStr;
+                if (objValue.sample !== null)
+                    value = objValue.sample;
+            }
+            else {
+                value = objValue;
+                var obj = {switch: optStr, default: objValue};
+                objValue = obj;
+            }
+        }
+
+        if (value !== null)
+            optStr = optStr + ' ' + (datatype.isBoolean(value) ? 'true|false' : value);
+    }
+    console.error('Usage:');
+    console.error('\t' + msg + optStr);
+    console.error();
+    for (var key in this.opts) {
+        if (this.opts[key].desc)
+            console.error('\t\t' + this.opts[key].switch + '\t\t' + this.opts[key].desc);
+                if (this.opts[key].desc)
+            console.error('\t\t' + this.opts[key].switch + '\t\t' + 'default: ' + this.opts[key].default);  
+    }
 }
 
 var paramsInstance = paramsInstance || new Params();
