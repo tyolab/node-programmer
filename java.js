@@ -96,7 +96,9 @@ try {
                 fieldOut = prefix + type + textBeforeText + targetKey + suffix;
         }
         else {
-            fieldOut = longOpts.format.replaceAll("$key", key).replaceAll("$KEY", targetKey).replaceAll("$type", type);
+            var replaceKey = longOpts.format.replaceAll("\\$key", key);
+            replaceKey = replaceKey.replaceAll("\\$KEY", targetKey);
+            fieldOut = replaceKey.replaceAll("\\$type", type);
         }
 
         fieldsOut += fieldOut + '\n';
