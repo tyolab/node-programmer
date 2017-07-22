@@ -10,6 +10,11 @@ var fs = require('fs'),
 var log = console; // require('./log');
 var params = require('./params');
 
+String.prototype.replaceAll = function(search, replacement) {
+    var target = this;
+    return target.replace(new RegExp(search, 'g'), replacement);
+};
+
 var optCount = params.getOptCount();
 var opts = params.getOpts();
 var optsAvailable = {
@@ -17,9 +22,12 @@ var optsAvailable = {
         prefix: {desc: '"a-prefix-string"', default: "public ", short: 'p', input: null}, 
         suffix: {desc: '"a-suffix-string"', default: ";", short: 's', input: null}, 
         "to-java-type": null, 
+        "text-before-key": {desc: '"the text before the key"' , default: "", input: null},
         camelcase: true, 
         class: false, 
-        serialize: false
+        serialize: false,
+        "key-to-all-caps": false,
+        format: {desc: "the-format-of-output", default: null, input: null}
     }
 
 if (optCount === 0) {
@@ -55,8 +63,14 @@ try {
     var fieldsOut = "";
     var prefix = longOpts.prefix || shortOpts.p || optsAvailable.prefix.default;
     var suffix = longOpts.suffix || shortOpts.s || optsAvailable.suffix.default;
+    var textBeforeText = longOpts["text-before-key"] || optsAvailable["text-before-key"].default;
     for (var key in jsonObj) {
         var value = jsonObj[key];
+
+        var targetKey = key;
+        if (!!longOpts["key-to-all-caps"])
+            targetKey = key.toUpperCase();
+
         var type = "";
         var fieldOut = "";
         if (!!longOpts["to-java-type"]) {
@@ -74,10 +88,16 @@ try {
         else {
             //
         }
-        if (longOpts['key-before-all'])
-            fieldOut = key + prefix + type + suffix;
-        else
-            fieldOut = prefix + type + key + suffix;
+
+        if (longOpts.format === null && longOpts.format.length > 0) {
+            if (longOpts['key-before-all'])
+                fieldOut = textBeforeText + targetKey + prefix + type + suffix;
+            else
+                fieldOut = prefix + type + textBeforeText + targetKey + suffix;
+        }
+        else {
+            fieldOut = longOpts.format.replaceAll("$key", key).replaceAll("$KEY", targetKey).replaceAll("$type", type);
+        }
 
         fieldsOut += fieldOut + '\n';
     }
