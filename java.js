@@ -8,27 +8,29 @@ var fs = require('fs'),
     util = require('util');
 
 var log = console; // require('./log');
-var params = require('./params');
+var Params = require('./params');
+var optsAvailable = {
+    'key-before-all': false, 
+    prefix: {desc: '"a-prefix-string"', default: "public ", short: 'p', input: null}, 
+    suffix: {desc: '"a-suffix-string"', default: ";", short: 's', input: null}, 
+    "to-java-type": null, 
+    "text-before-key": {desc: '"the text before the key"' , default: "", input: null},
+    camelcase: true, 
+    class: false, 
+    serialize: false,
+    "key-to-all-caps": false,
+    format: {desc: "the-format-of-output", default: null, input: null}
+};
+
+var params = new Params(optsAvailable);
 
 String.prototype.replaceAll = function(search, replacement) {
     var target = this;
     return target.replace(new RegExp(search, 'g'), replacement);
 };
 
-var optCount = params.getOptCount();
 var opts = params.getOpts();
-var optsAvailable = {
-        'key-before-all': false, 
-        prefix: {desc: '"a-prefix-string"', default: "public ", short: 'p', input: null}, 
-        suffix: {desc: '"a-suffix-string"', default: ";", short: 's', input: null}, 
-        "to-java-type": null, 
-        "text-before-key": {desc: '"the text before the key"' , default: "", input: null},
-        camelcase: true, 
-        class: false, 
-        serialize: false,
-        "key-to-all-caps": false,
-        format: {desc: "the-format-of-output", default: null, input: null}
-    }
+var optCount = params.getOptCount();
 
 if (optCount === 0) {
     params.setUsage(optsAvailable);
@@ -36,9 +38,8 @@ if (optCount === 0) {
     process.exit(-1);
 }
 
-var longOpts = opts['--'];
-var shortOpts = opts['-'];
-var inputs = opts.inputs;
+var longOpts = opts;
+var inputs = opts['---'];
 
 var jsonFile = Array.isArray(inputs) ? inputs[0] : inputs;
 var jsonString = fs.readFileSync(jsonFile, 'utf8').trim();
@@ -61,8 +62,8 @@ var jsonObj;
 try {
     jsonObj = JSON.parse(jsonString);
     var fieldsOut = "";
-    var prefix = longOpts.prefix || shortOpts.p || optsAvailable.prefix.default;
-    var suffix = longOpts.suffix || shortOpts.s || optsAvailable.suffix.default;
+    var prefix = longOpts.prefix; // || shortOpts.p || optsAvailable.prefix.default;
+    var suffix = longOpts.suffix; // || shortOpts.s || optsAvailable.suffix.default;
     var textBeforeText = longOpts["text-before-key"] || optsAvailable["text-before-key"].default;
     for (var key in jsonObj) {
         var value = jsonObj[key];
@@ -97,8 +98,11 @@ try {
         }
         else {
             var replaceKey = longOpts.format.replaceAll("\\$key", key);
-            replaceKey = replaceKey.replaceAll("\\$KEY", targetKey);
-            fieldOut = replaceKey.replaceAll("\\$type", type);
+            if (replaceKey !== null)
+                replaceKey = replaceKey.replaceAll("\\$KEY", targetKey);
+
+            if (replaceKey !== null)
+                fieldOut = replaceKey.replaceAll("\\$type", type);
         }
 
         fieldsOut += fieldOut + '\n';

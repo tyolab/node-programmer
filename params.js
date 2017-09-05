@@ -6,17 +6,18 @@ const datatype = require('tyo-utils').dataype;
 
 function Params(defaults) {
     this.optCount = -1;
+    /**
+     * Parsed User Parameters
+     */
+    this.params = {};
+    
+    this['-'] = {};
 
     // { name: {desc: "", default: value, sample: value}}
     /**
      * Avaliable Options
      */
-    this.opts = {};
-
-    /**
-     * Parsed User Parameters
-     */
-    this.params = null;
+    this.setUsage(defaults);
 }
 
 /**
@@ -41,12 +42,20 @@ Params.prototype.append = function (obj, value) {
  */
 
 Params.prototype.getOpts = function () {
+    return this.parse();
+}
+
+/**
+ * 
+ */
+
+Params.prototype.parse = function () {
     if (this.optCount > -1)
         return this.params;
 
     this.optCount = 0;
 
-    var params = {'-': {}, '--': {}, inputs: null};
+    var params = this.params;
     var param = 2;
     if (process.argv.length > 2) {
         for (; param < process.argv.length; ++param) {
@@ -69,33 +78,46 @@ Params.prototype.getOpts = function () {
                 if (nextParam < process.argv.length && process.argv[nextParam].charAt(0) !== '-' && nextParam != (process.argv.length - 1)) {
                     nextValue = process.argv[nextParam];
 
-                    if (nextValue === 'true')
+                    if (nextValue === 'true') 
                         nextValue = true;
                     else if (nextValue === 'false')
                         nextValue = false;
+
+                    param = nextParam;
                 }
 
                 if (nextValue === null)
                     nextValue = true;
-
+        
                 var pos = 1;
                 if (c == '-')
                     pos = 2;
                 var key = paramStr.substr(pos);
+                var longKey;
                 if (pos === 2) {
-                    params['--'][key] = this.append(params['--'][key], nextValue);
+                    longKey = key;
                 }
                 else {
-                    params['-'][key] = this.append(params['-'][key], nextValue);
+                    var longKey = this['-'][key];
+                    if (!longKey)
+                        longKey = key;
                 }
+                if (!(longKey in params)) {
+                    console.error('Unknown option "' + longKey + '", please check your input and try it again');
+                    process.exit(-1);
+                }
+                /**
+                 * @todo data type check
+                 */
+                params[key] = this.append(params[key], nextValue);
             }
             else {
-                    params.inputs = this.append(params.others, paramStr);
+                params['---'] = this.append(params['---'], paramStr);
             }
         }
     }
 
-    return (this.params = params);
+    return this.params;
 }
 
 /**
@@ -113,7 +135,7 @@ Params.prototype.getOptCount = function () {
  * 
  */
 
-Params.prototype.newInstance = function (defaults) {
+Params.newInstance = function (defaults) {
     return new Params(defaults);
 }
 
@@ -123,6 +145,30 @@ Params.prototype.newInstance = function (defaults) {
 
 Params.prototype.setUsage = function (opts) {
     this.opts = opts;
+
+    this.parseUsage();
+}
+
+/**
+ * 
+ */
+
+Params.prototype.parseUsage = function () {
+    if (!this.opts)
+        return;
+
+    for (var key in this.opts) {
+        var obj = this.opts[key];
+
+        if (obj) {
+            this.params[key] = obj.default;
+            if (obj.short) {
+                this['-'][obj.short] = key;
+            }
+        }
+        else
+            this.params[key] = null;
+    }
 }
 
 /**
@@ -176,6 +222,4 @@ Params.prototype.showUsage = function (filename) {
     }
 }
 
-var paramsInstance = paramsInstance || new Params();
-
-module.exports = paramsInstance;
+module.exports = Params;
