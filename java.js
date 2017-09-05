@@ -90,7 +90,7 @@ try {
             //
         }
 
-        if (longOpts.format === null && longOpts.format.length > 0) {
+        if (longOpts.format === null || longOpts.format.length > 0) {
             if (longOpts['key-before-all'])
                 fieldOut = textBeforeText + targetKey + prefix + type + suffix;
             else
