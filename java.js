@@ -41,6 +41,8 @@ var jsonString = fs.readFileSync(jsonFile, 'utf8').trim();
 var datatype = require('tyo-utils').dataype;
 var java = require('./lib/java').java;
 
+java.opts = longOpts;
+
 if (longOpts['from-json-to-class']) {
 
 }

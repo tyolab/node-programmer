@@ -18,6 +18,6 @@
   "homepage": "https://github.com/tyolab/node-programmer#readme",
   "dependencies": {
     "bunyan": "^1.8.10",
-    "tyo-utils": "0.0.1"
+    "tyo-utils": "^0.0.2"
   }
 }
