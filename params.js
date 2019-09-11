@@ -2,7 +2,7 @@
  * @file params.js
  */
 
-const datatype = require('tyo-utils').;
+const datatype = require('tyo-utils').datatype;
 
 function Params(defaults) {
     defaults = defaults || {};
