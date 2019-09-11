@@ -38,7 +38,7 @@ var inputs = opts['---'];
 
 var jsonFile = Array.isArray(inputs) ? inputs[0] : inputs;
 var jsonString = fs.readFileSync(jsonFile, 'utf8').trim();
-var datatype = require('tyo-utils').dataype;
+var datatype = require('tyo-utils').;
 var java = require('./lib/java').java;
 
 java.opts = longOpts;

@@ -1,6 +1,6 @@
 {
   "name": "node-programmer",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A programmer bot for doing some boring programming jobs for software developers",
   "main": "java.js",
   "scripts": {
@@ -18,6 +18,6 @@
   "homepage": "https://github.com/tyolab/node-programmer#readme",
   "dependencies": {
     "bunyan": "^1.8.10",
-    "tyo-utils": "^0.0.2"
+    "tyo-utils": "^0.0.3"
   }
 }

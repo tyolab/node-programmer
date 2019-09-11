@@ -2,9 +2,11 @@
  * @file params.js
  */
 
-const datatype = require('tyo-utils').dataype;
+const datatype = require('tyo-utils').;
 
 function Params(defaults) {
+    defaults = defaults || {};
+
     this.optCount = -1;
     /**
      * Parsed User Parameters
@@ -15,7 +17,7 @@ function Params(defaults) {
 
     // { name: {desc: "", default: value, sample: value}}
     /**
-     * Avaliable Options
+     * Available Options
      */
     this.setUsage(defaults);
 }
