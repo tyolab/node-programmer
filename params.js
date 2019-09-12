@@ -2,7 +2,7 @@
  * @file params.js
  */
 
-const datatype = require('tyo-utils').datatype;
+const datatype = require('tyo-utils').;
 
 function Params(defaults) {
     defaults = defaults || {};
@@ -75,9 +75,9 @@ Params.prototype.parse = function () {
                  * 
                  * the next value should be paramter value
                  * 
-                 * 2) 
+                 * 
                  */
-                if (nextParam < process.argv.length && process.argv[nextParam].charAt(0) !== '-' && nextParam != (process.argv.length - 1)) {
+                if (nextParam < process.argv.length && process.argv[nextParam].charAt(0) !== '-'/*  && nextParam != (process.argv.length - 1) */) {
                     nextValue = process.argv[nextParam];
 
                     if (nextValue === 'true') 
