@@ -2,10 +2,15 @@
  * @file params.js
  */
 
-const datatype = require('tyo-utils').;
+const datatype = require('tyo-utils').datatype;
+
+function logError(message) {
+    console.error(message);
+    process.exit(-1);
+}
 
 function Params(defaults) {
-    defaults = defaults || {};
+    this.defaults = defaults || {};
 
     this.optCount = -1;
     /**
@@ -67,30 +72,10 @@ Params.prototype.parse = function () {
             var o = paramStr.charAt(0);
             if (o === '-' && paramStr.length > 2) {
                 var c = paramStr.charAt(1);
-                var nextParam = (param + 1);
-                var nextValue = null;
+
                 /**
-                 * 1) 
-                 * if inputs.length > 0
-                 * 
-                 * the next value should be paramter value
-                 * 
-                 * 
+                 * Get the long key
                  */
-                if (nextParam < process.argv.length && process.argv[nextParam].charAt(0) !== '-'/*  && nextParam != (process.argv.length - 1) */) {
-                    nextValue = process.argv[nextParam];
-
-                    if (nextValue === 'true') 
-                        nextValue = true;
-                    else if (nextValue === 'false')
-                        nextValue = false;
-
-                    param = nextParam;
-                }
-
-                if (nextValue === null)
-                    nextValue = true;
-        
                 var pos = 1;
                 if (c == '-')
                     pos = 2;
@@ -108,10 +93,69 @@ Params.prototype.parse = function () {
                     console.error('Unknown option "' + longKey + '", please check your input and try it again');
                     process.exit(-1);
                 }
+
                 /**
-                 * @todo data type check
+                 * Now the value of the option
                  */
-                params[key] = this.append(params[key], nextValue);
+                var nextParam = (param + 1);
+                var nextValue = null;
+                /**
+                 * Get the option value
+                 * 
+                 * 1) 
+                 * if inputs.length > 0
+                 * 
+                 * the next value should be paramter value
+                 * 
+                 * 2) OK, 
+                 * 
+                 */
+                if (nextParam < process.argv.length ) {
+
+                    // if the next param is a value
+                    if (process.argv[nextParam].charAt(0) !== '-') {
+                        nextValue = process.argv[nextParam];
+
+                        if (nextValue === 'true') 
+                            nextValue = true;
+                        else if (nextValue === 'false')
+                            nextValue = false;
+                        else {
+                            // a non boolean value is provided for the option
+                            if (params[key] === true || params[key] === false) {
+                                // not supposed to take any value for this option
+                                // if the option exist, the default boolean value is true
+                                logError('A boolean value is needed for option: "' + longKey + '", please check your input and try it again');
+                            }
+                        }
+
+                        if ((nextValue === true || nextValue == false) &&
+                             (params[key] !== true && params[key] !== false)) {
+                            logError("A non boolean value is required for options: " + longKey);
+                        }
+                        
+                        param = nextParam;
+
+                        /**
+                         * @todo data type check
+                         */
+                        params[key] = this.append(params[key], nextValue);
+                    }
+                    // no value provided
+                    else {
+                        // if the default value isn't a boolean value
+                        if (params[key] !== true && params[key] !== false) {
+                            console.error('A value needs to be provided for option: "' + longKey + '", please check your input and try it again');
+                            process.exit(-1);
+                        }
+                        // else
+                        // we will set it true as we set in the option
+                        else {
+                            params[key] = true;
+                        }
+                    }
+                }
+        
             }
             else {
                 params['---'] = this.append(params['---'], paramStr);
