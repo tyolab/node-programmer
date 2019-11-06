@@ -24,7 +24,7 @@ function Params(defaults) {
     /**
      * Available Options
      */
-    this.setUsage(defaults);
+    this.setUsage(this.defaults);
 }
 
 /**
@@ -207,10 +207,14 @@ Params.prototype.parseUsage = function () {
         var obj = this.opts[key];
 
         if (obj) {
-            this.params[key] = obj.default;
-            if (obj.short) {
-                this['-'][obj.short] = key;
+            if (typeof obj === "object") {
+                this.params[key] = obj.default;
+                if (obj.short) {
+                    this['-'][obj.short] = key;
+                }
             }
+            else
+                this.params[key] = obj;
         }
         else
             this.params[key] = null;
