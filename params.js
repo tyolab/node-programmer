@@ -9,8 +9,15 @@ function logError(message) {
     process.exit(-1);
 }
 
-function Params(defaults) {
+/**
+ * 
+ * @param {*} defaults 
+ * @param {*} enforceEmptyOption true/false, to check the option exists in the default option, if not an exception will be thrown
+ */
+
+function Params(defaults, enforceEmptyOption) {
     this.defaults = defaults || {};
+    this.enforceEmptyOption = enforceEmptyOption; 
 
     this.optCount = -1;
     /**
@@ -79,20 +86,26 @@ Params.prototype.parse = function () {
                 var pos = 1;
                 if (c == '-')
                     pos = 2;
+                
                 var key = paramStr.substr(pos);
                 var longKey;
                 if (pos === 2) {
                     longKey = key;
                 }
                 else {
-                    var longKey = this['-'][key];
+                    longKey = this['-'][key];
                     if (!longKey)
                         longKey = key;
                 }
-                if (!(longKey in params)) {
-                    console.error('Unknown option "' + longKey + '", please check your input and try it again');
+                if (!(longKey in params) && this.enforceEmptyOption) {
+                    console.error('Unknown option "' + longKey + '", please check your input and try again');
                     process.exit(-1);
                 }
+
+                /**
+                 * The option doesn't have to have a value
+                 */
+                params[key] = null;
 
                 /**
                  * Now the value of the option
