@@ -77,102 +77,115 @@ Params.prototype.parse = function () {
 
             var paramStr = process.argv[param];
             var o = paramStr.charAt(0);
-            if (o === '-' && paramStr.length > 2) {
-                var c = paramStr.charAt(1);
-
-                /**
-                 * Get the long key
-                 */
-                var pos = 1;
-                if (c == '-')
-                    pos = 2;
-                
-                var key = paramStr.substr(pos);
-                var longKey;
-                if (pos === 2) {
-                    longKey = key;
-                }
-                else {
-                    longKey = this['-'][key];
-                    if (!longKey)
+            if (o === '-') {
+                if (paramStr.length > 1) {
+                    var c = paramStr.charAt(1);
+                    var isEmptyOption = false;
+                    /**
+                     * Get the long key
+                     */
+                    var pos = 1;
+                    if (c == '-')
+                        pos = 2;
+                    
+                    var key = paramStr.substr(pos);
+                    var longKey;
+                    if (pos === 2) {
                         longKey = key;
-                }
-                if (!(longKey in params) && this.enforceEmptyOption) {
-                    console.error('Unknown option "' + longKey + '", please check your input and try again');
-                    process.exit(-1);
-                }
+                    }
+                    else {
+                        longKey = this['-'][key];
+                        if (!longKey)
+                            longKey = key;
+                    }
+                    isEmptyOption = !(longKey in params);
+                    if (isEmptyOption && this.enforceEmptyOption) {
+                        console.error('Unknown option "' + longKey + '", please check your input and try again');
+                        process.exit(-1);
+                    }
 
-                /**
-                 * The option doesn't have to have a value
-                 */
-                params[key] = null;
+                    /**
+                     * The option doesn't have to have a value
+                     */
+                    params[key] = null;
 
-                /**
-                 * Now the value of the option
-                 */
-                var nextParam = (param + 1);
-                var nextValue = null;
-                /**
-                 * Get the option value
-                 * 
-                 * 1) 
-                 * if inputs.length > 0
-                 * 
-                 * the next value should be paramter value
-                 * 
-                 * 2) OK, 
-                 * 
-                 */
-                if (nextParam < process.argv.length ) {
+                    /**
+                     * Now the value of the option
+                     */
+                    var nextParam = (param + 1);
+                    var nextValue = null;
+                    /**
+                     * Get the option value
+                     * 
+                     * 1) 
+                     * if inputs.length > 0
+                     * 
+                     * the next value should be paramter value
+                     * 
+                     * 2) OK, 
+                     * 
+                     */
+                    if (nextParam < process.argv.length ) {
 
-                    // if the next param is a value
-                    if (process.argv[nextParam].charAt(0) !== '-') {
-                        nextValue = process.argv[nextParam];
+                        // if the next param is a value
+                        if (process.argv[nextParam].charAt(0) !== '-') {
+                            // we can only know what to do is that we know the default value / type of an option
+                            if (!isEmptyOption) {
+                                nextValue = process.argv[nextParam];
 
-                        if (nextValue === 'true') 
-                            nextValue = true;
-                        else if (nextValue === 'false')
-                            nextValue = false;
-                        else {
-                            // a non boolean value is provided for the option
-                            if (params[key] === true || params[key] === false) {
-                                // not supposed to take any value for this option
-                                // if the option exist, the default boolean value is true
-                                logError('A boolean value is needed for option: "' + longKey + '", please check your input and try it again');
+                                if (nextValue === 'true') 
+                                    nextValue = true;
+                                else if (nextValue === 'false')
+                                    nextValue = false;
+                                else {
+                                    // a non boolean value is provided for the option
+                                    if (params[key] === true || params[key] === false) {
+                                        // not supposed to take any value for this option
+                                        // if the option exist, the default boolean value is true
+                                        logError('A boolean value is needed for option: "' + longKey + '", please check your input and try it again');
+                                    }
+                                }
+
+                                if ((nextValue === true || nextValue == false) &&
+                                    (params[key] !== true && params[key] !== false)) {
+                                    logError("A non boolean value is required for options: " + longKey);
+                                }
+                                
+                                param = nextParam;
+
+                                /**
+                                 * @todo data type check
+                                 */
+                                params[key] = this.append(params[key], nextValue);
                             }
                         }
-
-                        if ((nextValue === true || nextValue == false) &&
-                             (params[key] !== true && params[key] !== false)) {
-                            logError("A non boolean value is required for options: " + longKey);
-                        }
-                        
-                        param = nextParam;
-
-                        /**
-                         * @todo data type check
-                         */
-                        params[key] = this.append(params[key], nextValue);
-                    }
-                    // no value provided
-                    else {
-                        // if the default value isn't a boolean value
-                        if (params[key] !== true && params[key] !== false) {
-                            console.error('A value needs to be provided for option: "' + longKey + '", please check your input and try it again');
-                            process.exit(-1);
-                        }
-                        // else
-                        // we will set it true as we set in the option
+                        // no value provided
                         else {
-                            params[key] = true;
+                            // if the option (with the key) doesn't not exist in the default option
+                            // we won't be able to tell if it should be followed by a value or if it is a switch (true/false)
+                            // so we just ignore it
+                            if (!isEmptyOption) {
+                                // if the default value isn't a boolean value
+                                if (params[key] !== true && params[key] !== false) {
+                                    console.error('A value needs to be provided for option: "' + longKey + '", please check your input and try again');
+                                    process.exit(-1);
+                                }
+                                // else
+                                // we will set it true as we set in the option
+                                else {
+                                    params[key] = true;
+                                }
+                            }
                         }
                     }
+            
                 }
-        
+                else 
+                    // in case, there are also needs for output and error
+                    params['----'] = {input: process.stdin, output: null, error: null};
             }
-            else {
+            else
                 params['---'] = this.append(params['---'], paramStr);
-            }
         }
     }
 
