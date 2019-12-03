@@ -24,6 +24,7 @@ function Params(defaults, enforceEmptyOption) {
      * Parsed User Parameters
      */
     this.params = {};
+    this.argv = null;
     
     this['-'] = {};
 
@@ -35,7 +36,8 @@ function Params(defaults, enforceEmptyOption) {
 }
 
 /**
- * 
+ * @param {*} object
+ * @param {*} object
  */
 
 Params.prototype.append = function (obj, value) {
@@ -55,7 +57,9 @@ Params.prototype.append = function (obj, value) {
  * 
  */
 
-Params.prototype.getOpts = function () {
+Params.prototype.getOpts = function (argv) {
+    this.argv = argv;
+    
     return this.parse();
 }
 
@@ -64,18 +68,20 @@ Params.prototype.getOpts = function () {
  */
 
 Params.prototype.parse = function () {
+
     if (this.optCount > -1)
         return this.params;
 
     this.optCount = 0;
-
+    this.argv = this.argv || process.argv;
+    
     var params = this.params;
     var param = 2;
-    if (process.argv.length > 2) {
-        for (; param < process.argv.length; ++param) {
+    if (this.argv.length > 2) {
+        for (; param < this.argv.length; ++param) {
             this.optCount += 1;
 
-            var paramStr = process.argv[param];
+            var paramStr = this.argv[param];
             var o = paramStr.charAt(0);
             if (o === '-') {
                 if (paramStr.length > 1) {
@@ -125,13 +131,13 @@ Params.prototype.parse = function () {
                      * 2) OK, 
                      * 
                      */
-                    if (nextParam < process.argv.length ) {
+                    if (nextParam < this.argv.length ) {
 
                         // if the next param is a value
-                        if (process.argv[nextParam].charAt(0) !== '-') {
+                        if (this.argv[nextParam].charAt(0) !== '-') {
                             // we can only know what to do is that we know the default value / type of an option
                             if (!isEmptyOption) {
-                                nextValue = process.argv[nextParam];
+                                nextValue = this.argv[nextParam];
 
                                 if (nextValue === 'true') 
                                     nextValue = true;
