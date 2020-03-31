@@ -106,7 +106,7 @@ Params.prototype.parse = function () {
                     if (!longKey)
                         longKey = key;
                 }
-                isEmptyOption = !(longKey in params);
+                isEmptyOption = !(longKey in this.defaults);
                 if (isEmptyOption && this.enforceEmptyOption) {
                     console.error('Unknown option "' + longKey + '", please check your input and try again');
                     process.exit(-1);
@@ -117,7 +117,9 @@ Params.prototype.parse = function () {
                  */
                 var defaultValue = null;
                 var nullable = true;
-                if (this.defaults[key]) {
+                if ((typeof this.defaults[key]) === 'boolean')
+                    defaultValue = true; // this.defaults[key];
+                else if (this.defaults[key]) {
                     if (typeof this.defaults[key] === 'object') {
                         // Get the default value
                         defaultValue = (this.defaults[key].default) ? this.defaults[key].default : null;
@@ -162,7 +164,7 @@ Params.prototype.parse = function () {
                                 nextValue = false;
                             else {
                                 // a non boolean value is provided for the option
-                                if (params[key] === true || params[key] === false) {
+                                if (typeof this.defaults[key] === 'boolean' && typeof params[key] !== 'boolean') {
                                     // not supposed to take any value for this option
                                     // if the option exist, the default boolean value is true
                                     logError('A boolean value is needed for option: "' + longKey + '", please check your input and try it again');
@@ -174,12 +176,17 @@ Params.prototype.parse = function () {
                                 logError("A non boolean value is required for options: " + longKey);
                             }
 
-                            param = nextParam;
-
                             /**
                              * @todo data type check
                              */
-                            params[key] = this.append(params[key], nextValue);
+                            if (typeof params[key] === 'boolean') {
+                                if (typeof nextValue === 'boolean')
+                                    params[key] = nextValue;
+                            }
+                            else {
+                                params[key] = this.append(params[key], nextValue);
+                                param = nextParam;
+                            }
                         }
                     }
                     // no value provided
@@ -202,14 +209,16 @@ Params.prototype.parse = function () {
                     }
                 }
 
-            } else
+            } 
+            else
                 // in case, there are also needs for output and error
                 params['----'] = {
                     input: process.stdin,
                     output: null,
                     error: null
                 };
-        } else
+        } 
+        else
             params['---'] = this.append(params['---'], paramStr);
     }
 
