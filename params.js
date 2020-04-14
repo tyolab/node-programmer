@@ -106,7 +106,7 @@ Params.prototype.parse = function () {
                     if (!longKey)
                         longKey = key;
                 }
-                isEmptyOption = !(longKey in this.defaults);
+                isEmptyOption = typeof (longKey in this.defaults) === 'undefined';
                 if (isEmptyOption && this.enforceEmptyOption) {
                     console.error('Unknown option "' + longKey + '", please check your input and try again');
                     process.exit(-1);
@@ -184,7 +184,10 @@ Params.prototype.parse = function () {
                                     params[key] = nextValue;
                             }
                             else {
-                                params[key] = this.append(params[key], nextValue);
+                                if (Array.isArray(this.defaults[key]))
+                                    params[key] = this.append(params[key], nextValue);
+                                else
+                                    params[key] = nextValue;
                                 param = nextParam;
                             }
                         }
