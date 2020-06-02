@@ -1,8 +1,8 @@
 {
   "name": "node-programmer",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "description": "A programmer bot for doing some boring programming jobs for software developers",
-  "main": "java.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
