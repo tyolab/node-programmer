@@ -189,8 +189,10 @@ Params.prototype.parse = function () {
                              * @todo data type check
                              */
                             if (typeof params[key] === 'boolean') {
-                                if (typeof nextValue === 'boolean')
+                                if (typeof nextValue === 'boolean') {
                                     params[key] = nextValue;
+                                    param = nextParam;
+                                }
                             }
                             else {
                                 if (Array.isArray(this.defaults[key]))
