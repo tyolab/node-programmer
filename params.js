@@ -125,11 +125,20 @@ Params.prototype.parse = function () {
                         defaultValue = (this.defaults[key].default) ? this.defaults[key].default : null;
 
                         // Get if it is nullable
-                        if (typeof this.defaults[key].nullable === 'boolean')
-                            nullable = (this.defaults[key].nullable);
-                        else
-                            throw new Error("The nullability of a default value must be boolean type");
-                    } else
+                        if (this.defaults[key].required) {
+                            nullable = false;
+
+                            if (this.defaults[key].nullable)
+                                console.warn("An argument should not be specified as nullable after it is marked as required");
+                        }
+                        else {
+                            if (typeof this.defaults[key].nullable === 'boolean')
+                                nullable = (this.defaults[key].nullable);
+                            else
+                                throw new Error("The nullability of a required key must be specified (boolean type) if the default value does not exist");
+                        }
+                    } 
+                    else
                         defaultValue = this.defaults[key];
                 }
                 params[key] = defaultValue;
