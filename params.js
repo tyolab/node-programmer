@@ -167,9 +167,9 @@ Params.prototype.parse = function () {
                         if (!isEmptyOption) {
                             nextValue = this.argv[nextParam];
 
-                            if (nextValue === 'true')
+                            if (nextValue === 'true' || nextValue === 'yes')
                                 nextValue = true;
-                            else if (nextValue === 'false')
+                            else if (nextValue === 'false' || nextValue === 'no')
                                 nextValue = false;
                             else {
                                 // a non boolean value is provided for the option
@@ -279,7 +279,7 @@ Params.prototype.parseUsage = function () {
     for (var key in this.opts) {
         var obj = this.opts[key];
 
-        if (obj) {
+        if (typeof obj === 'boolean' || obj) {
             if (typeof obj === "object") {
                 this.params[key] = obj.default;
                 if (obj.short) {
