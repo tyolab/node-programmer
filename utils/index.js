@@ -11,23 +11,25 @@ module.exports = {
      * @returns {Object} Result of all merge properties
      */
     deep_merge: function()  {
-     var result = {};
-     function assign_value(val, key) {
-       if (typeof result[key] === 'object' && typeof val === 'object') {
-         result[key] = deep_merge(result[key], val);
-       } else if (typeof val === 'object') {
-         result[key] = deep_merge({}, val);
-       } else {
-         result[key] = val;
-       }
-     }
+      var self = this;
+      var result = {};
+      function assign_value(val, key) {
+        if (typeof result[key] === 'object' && typeof val === 'object') {
+          result[key] = self.deep_merge(result[key], val);
+        } else if (typeof val === 'object') {
+          result[key] = self.deep_merge({}, val);
+        } else {
+          result[key] = val;
+        }
+      }
    
-     for (var i = 0, l = arguments.length; i < l; i++) {
-       if (!arguments[i])
-         continue;
-      
-       forEach(arguments[i], assign_value);
-     }
-     return result;
+      for (var i = 0, l = arguments.length; i < l; i++) {
+        if (!arguments[i])
+          continue;
+        
+        for (var key in arguments[i])
+          assign_value(arguments[i][key], key);
+      }
+      return result;
    }
 }
