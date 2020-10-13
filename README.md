@@ -1,12 +1,18 @@
 # node-programmer
-A bot programmer with Node
-
+I hope it can become A coder/developer's assistant.
 
 ## Using Params Library
 
 This library provides an options parsing function.
 
 ### Setting all avaliable options
+
+
+
+### Command Line
+node . --long-option-with-value a-value --long-option-without-value-is-enabling -s "short" input1 input2 input3...
+
+## Example Usage
 
 ``` javascript
 var optsAvailable = {
@@ -20,11 +26,11 @@ var optsAvailable = {
     "cell-delim": null,
     "row-delim": null
 };
+
+
 ```
 
-### Example Usage
-
-Please see (this project)[https://github.com/tyolab/table-exporter] from example usage.
+Please see [this project][https://github.com/tyolab/table-exporter] from example usage.
 
 ## Maintainer
 
