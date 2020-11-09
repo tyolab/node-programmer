@@ -233,7 +233,7 @@ Params.prototype.parse = function () {
                 };
         } 
         else
-            params['---'] = this.append(params['---'], paramStr);
+            params['---'] = this.append(params['---'] || [], paramStr);
     }
 
     return this.params;
