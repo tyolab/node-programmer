@@ -12,12 +12,12 @@ function logError(message) {
 /**
  *
  * @param {*} defaults
- * @param {*} enforceEmptyOption true/false, to check the option exists in the default option, if not an exception will be thrown
+ * @param {*} enforceEmptyOption true/false, to check if the option exists in the default option, if not an exception will be thrown
  */
 
 function Params(defaults, enforceEmptyOption) {
     this.defaults = defaults || {};
-    this.enforceEmptyOption = enforceEmptyOption;
+    this.enforceEmptyOption = (typeof enforceEmptyOption === 'undefined' || typeof enforceEmptyOption !== 'boolean') ? true : enforceEmptyOption;
 
     this.optCount = -1;
     /**
