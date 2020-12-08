@@ -2,6 +2,8 @@
  * @file params.js
  */
 
+const path = require('path');
+
 const datatype = require('tyo-utils').datatype;
 
 function logError(message) {
@@ -74,7 +76,7 @@ Params.prototype.parse = function () {
 
     this.optCount = 0;
     if (!this.argv) {
-        this.argv = process.argv;
+        this.argv = process.argv.map((x) => x);
         this.argv.shift(); // the node itself
         this.argv.shift(); // the node script / program
     }
@@ -297,9 +299,10 @@ Params.prototype.parseUsage = function () {
  */
 
 Params.prototype.showUsage = function (filename) {
-    filename = filename || ".";
+    var nodeProgram = process.argv[0] || 'node';
+    filename = filename || (__filename);
 
-    var msg = "node " + filename;
+    var msg = nodeProgram + " " + filename;
     var optStr = "";
     for (var key in this.opts) {
         optStr = optStr + " ";
@@ -315,11 +318,12 @@ Params.prototype.showUsage = function (filename) {
         var objValue = this.opts[key];
         var value = null;
         if (objValue !== null) {
-            if ((typeof objValue) === 'object') {
+            if ((typeof objValue) === 'object' && objValue.sample) {
                 objValue.switch = switchStr;
                 if (objValue.sample !== null)
                     value = objValue.sample;
-            } else {
+            } 
+            else {
                 value = objValue;
                 var obj = {
                     switch: switchStr,
@@ -332,6 +336,9 @@ Params.prototype.showUsage = function (filename) {
         if (value !== null)
             optStr = optStr + ' ' + (datatype.isBoolean(value) ? 'true|false' : value);
     }
+    if (this.opts["---"])
+        optStr += this.opts["---"];
+
     console.error('Usage:');
     console.error('\t' + msg + optStr);
     console.error();
