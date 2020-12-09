@@ -281,15 +281,18 @@ Params.prototype.parseUsage = function () {
     for (var key in this.opts) {
         var obj = this.opts[key];
 
-        if (typeof obj === 'boolean' || obj) {
-            if (typeof obj === "object") {
+        // [] could be empty
+        if (obj || typeof obj === 'boolean') {
+            if (!Array.isArray(obj) && typeof obj === "object") {
                 this.params[key] = obj.default;
                 if (obj.short) {
                     this['-'][obj.short] = key;
                 }
-            } else
+            } 
+            else
                 this.params[key] = obj;
-        } else
+        } 
+        else
             this.params[key] = null;
     }
 }
