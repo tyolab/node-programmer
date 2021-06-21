@@ -134,10 +134,15 @@ Params.prototype.parse = function () {
                                 console.warn("An argument should not be specified as nullable after it is marked as required");
                         }
                         else {
+                            // interchangable for nullable or (not) required
+                            // if not provided, if will be defaulted as not required 
+                            if (typeof this.defaults[key].required != 'undefined')
+                                this.defaults[key].nullable = !this.defaults[key].required;
+                                
                             if (typeof this.defaults[key].nullable === 'boolean')
                                 nullable = (this.defaults[key].nullable);
                             else
-                                throw new Error("The nullability of a required key must be specified (boolean type) if the default value does not exist");
+                                throw new Error("The nullability of a required key must be specified (boolean type) if the default value does not exist for key: " + key + ", for example {nullable: false}");
                         }
                     } 
                     else
