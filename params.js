@@ -27,6 +27,7 @@ function Params(defaults, enforceEmptyOption) {
      */
     this.params = {};
     this.argv = null;
+    this.logger = null;
 
     this['-'] = {};
 
@@ -84,9 +85,14 @@ Params.prototype.parse = function () {
     var params = this.params;
     var param = 0;
     for (; param < this.argv.length; ++param) {
-        this.optCount += 1;
-
         var paramStr = this.argv[param];
+        if (!paramStr) {
+            if (this.logger && this.logger.warn)
+                this.logger.warn("Empty parameter in positon " + param);
+            continue;
+        }
+
+        this.optCount += 1;
         var o = paramStr.charAt(0);
         if (o === '-') {
             if (paramStr.length > 1) {
@@ -96,11 +102,12 @@ Params.prototype.parse = function () {
                  * Get the long key
                  */
                 var pos = 1;
+                var longKey = undefined;
                 if (c == '-')
                     pos = 2;
 
                 var key = paramStr.substr(pos);
-                var longKey;
+                
                 if (pos === 2) {
                     longKey = key;
                 } else {
@@ -119,36 +126,40 @@ Params.prototype.parse = function () {
                  */
                 var defaultValue = null;
                 var nullable = true;
-                if ((typeof this.defaults[key]) === 'boolean')
+                if ((typeof this.defaults[longKey]) === 'boolean')
                     defaultValue = true; // this.defaults[key];
-                else if (this.defaults[key]) {
-                    if (typeof this.defaults[key] === 'object') {
+                else if (this.defaults[longKey]) {
+                    if (!Array.isArray(this.defaults[longKey]) && typeof this.defaults[longKey] === 'object') {
                         // Get the default value
-                        defaultValue = (this.defaults[key].default) ? this.defaults[key].default : null;
+                        defaultValue = (this.defaults[longKey].default) ? this.defaults[longKey].default : null;
 
-                        // Get if it is nullable
-                        if (this.defaults[key].required) {
+                        // Get if it is nullable, if it
+                        if (typeof this.defaults[longKey].nullable === 'boolean')
+                            nullable = this.defaults[longKey].nullable;
+                        else if (typeof this.defaults[longKey].required === undefined || this.defaults[longKey].required) {
                             nullable = false;
 
-                            if (this.defaults[key].nullable)
+                            if (this.defaults[longKey].nullable)
                                 console.warn("An argument should not be specified as nullable after it is marked as required");
                         }
-                        else {
-                            // interchangable for nullable or (not) required
-                            // if not provided, if will be defaulted as not required 
-                            if (typeof this.defaults[key].required != 'undefined')
-                                this.defaults[key].nullable = !this.defaults[key].required;
+
+                        // if nullability is not provideded, we consider it is required 
+                        // else {
+                        //     // interchangable for nullable or (not) required
+                        //     // if not provided, if will be defaulted as not required 
+                        //     if (typeof this.defaults[longKey].required != 'undefined')
+                        //         this.defaults[longKey].nullable = !this.defaults[longKey].required;
                                 
-                            if (typeof this.defaults[key].nullable === 'boolean')
-                                nullable = (this.defaults[key].nullable);
-                            else
-                                throw new Error("The nullability of a required key must be specified (boolean type) if the default value does not exist for key: " + key + ", for example {nullable: false}");
-                        }
+                        //     if (typeof this.defaults[longKey].nullable === 'boolean')
+                        //         nullable = (this.defaults[longKey].nullable);
+                        //     else
+                        //         throw new Error("The nullability of a required key must be specified (boolean type) if the default value does not exist for key: " + longKey + ", for example {nullable: false}");
+                        // }
                     } 
                     else
-                        defaultValue = this.defaults[key];
+                        defaultValue = this.defaults[longKey];
                 }
-                params[key] = defaultValue;
+                params[longKey] = defaultValue;
 
                 /**
                  * Now the value of the option
@@ -180,7 +191,7 @@ Params.prototype.parse = function () {
                                 nextValue = false;
                             else {
                                 // a non boolean value is provided for the option
-                                if (typeof this.defaults[key] === 'boolean' && typeof params[key] !== 'boolean') {
+                                if (typeof this.defaults[longKey] === 'boolean' && typeof params[longKey] !== 'boolean') {
                                     // not supposed to take any value for this option
                                     // if the option exist, the default boolean value is true
                                     logError('A boolean value is needed for option: "' + longKey + '", please check your input and try it again');
@@ -188,24 +199,24 @@ Params.prototype.parse = function () {
                             }
 
                             if ((nextValue === true || nextValue == false) &&
-                                (params[key] !== true && params[key] !== false)) {
+                                (params[longKey] !== true && params[longKey] !== false)) {
                                 logError("A non boolean value is required for options: " + longKey);
                             }
 
                             /**
                              * @todo data type check
                              */
-                            if (typeof params[key] === 'boolean') {
+                            if (typeof params[longKey] === 'boolean') {
                                 if (typeof nextValue === 'boolean') {
-                                    params[key] = nextValue;
+                                    params[longKey] = nextValue;
                                     param = nextParam;
                                 }
                             }
                             else {
-                                if (Array.isArray(this.defaults[key]))
-                                    params[key] = this.append(params[key], nextValue);
+                                if (Array.isArray(this.defaults[longKey]))
+                                    params[longKey] = this.append(params[longKey], nextValue);
                                 else
-                                    params[key] = nextValue;
+                                    params[longKey] = nextValue;
                                 param = nextParam;
                             }
                         }
@@ -217,14 +228,14 @@ Params.prototype.parse = function () {
                         // so we just ignore it
                         if (!nullable || !isEmptyOption) {
                             // if the default value isn't a boolean value
-                            if (params[key] !== true && params[key] !== false) {
+                            if (params[longKey] !== true && params[longKey] !== false) {
                                 console.error('A value needs to be provided for option: "' + longKey + '", please check your input and try again');
                                 process.exit(-1);
                             }
                             // else
                             // we will set it true as we set in the option
                             else {
-                                params[key] = true;
+                                params[longKey] = true;
                             }
                         }
                     }
@@ -291,11 +302,21 @@ Params.prototype.parseUsage = function () {
             if (!Array.isArray(obj) && typeof obj === "object") {
                 this.params[key] = obj.default;
                 if (obj.short) {
+                    if (obj.short.length > 1)
+                        throw new Error("Short option should be one character only: " + obj.short);
                     this['-'][obj.short] = key;
+                    continue;
                 }
             } 
-            else
+            else {
                 this.params[key] = obj;
+            }
+
+            var first_c = key.charAt(0);
+
+            // if there is no such short option
+            if (!this['-'][first_c])
+                this['-'][first_c] = key;        
         } 
         else
             this.params[key] = null;

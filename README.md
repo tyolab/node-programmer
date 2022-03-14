@@ -16,15 +16,9 @@ node . --long-option-with-value a-value --long-option-without-value-is-enabling 
 
 ``` javascript
 var optsAvailable = {
-    "table-selector": null,
-    "header-selector": null,
-    "row-selector": null,
-    "cell-selector": null,
-    "target-selector": null,
-    "output-type": "json",
-    "output-name": null,
-    "cell-delim": null,
-    "row-delim": null
+    "long": 16,
+    "short": 5,
+    "test": {default: "Hello World!", type: "string", description: "This is a test option."},
 };
 
 
