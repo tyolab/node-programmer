@@ -136,8 +136,11 @@ Params.prototype.parse = function () {
                         // Get if it is nullable, if it
                         if (typeof this.defaults[longKey].nullable === 'boolean')
                             nullable = this.defaults[longKey].nullable;
-                        else if (typeof this.defaults[longKey].required === undefined || this.defaults[longKey].required) {
-                            nullable = false;
+                        else if (typeof this.defaults[longKey].required === undefined || typeof this.defaults[longKey].required === 'boolean') {
+                            if (typeof this.defaults[longKey].required === undefined)
+                                nullable = false;
+                            else
+                                nullable = this.defaults[longKey].required;
 
                             if (this.defaults[longKey].nullable)
                                 console.warn("An argument should not be specified as nullable after it is marked as required");

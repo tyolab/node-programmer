@@ -1,6 +1,6 @@
 {
   "name": "node-programmer",
-  "version": "0.0.25",
+  "version": "0.0.26",
   "description": "A programmer bot for doing some boring programming jobs for software developers",
   "main": "index.js",
   "scripts": {
