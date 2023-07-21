@@ -301,7 +301,16 @@ Params.prototype.parseUsage = function () {
         var obj = this.opts[key];
 
         // [] could be empty
-        if (obj || typeof obj === 'boolean') {
+        // 0 could be a valid value
+        // '' could be a valid value
+        // false could be a valid value
+        if (obj 
+            || typeof obj === 'boolean'
+            || Array.isArray(obj)
+            || typeof obj === 'string'
+            || typeof obj === 'number'
+            
+        ) {
             if (!Array.isArray(obj) && typeof obj === "object") {
                 this.params[key] = obj.default;
                 if (obj.short) {
