@@ -128,6 +128,10 @@ Params.prototype.parse = function () {
                 var nullable = true;
                 if ((typeof this.defaults[longKey]) === 'boolean')
                     defaultValue = true; // this.defaults[key];
+                else if (typeof this.defaults[longKey] === 'string')
+                    defaultValue = this.defaults[longKey];
+                else if (typeof this.defaults[longKey] === 'number')
+                    defaultValue = this.defaults[longKey];                
                 else if (this.defaults[longKey]) {
                     if (!Array.isArray(this.defaults[longKey]) && typeof this.defaults[longKey] === 'object') {
                         // Get the default value
@@ -201,7 +205,7 @@ Params.prototype.parse = function () {
                                 }
                             }
 
-                            if ((nextValue === true || nextValue == false) &&
+                            if ((typeof nextValue == 'boolean' && nextValue === true || nextValue == false) &&
                                 (params[longKey] !== true && params[longKey] !== false)) {
                                 logError("A non boolean value is required for options: " + longKey);
                             }
@@ -215,6 +219,21 @@ Params.prototype.parse = function () {
                                     param = nextParam;
                                 }
                             }
+                            else if (typeof params[longKey] === 'number') {
+                                try {
+                                    function is_float (v) {
+                                        return !isNaN(v) && Math.floor(v) !== Math.ceil(v);
+                                    }
+                                    if (is_float(params[longKey]))
+                                        params[longKey] = parseFloat(nextValue);
+                                    else    
+                                        params[longKey] = parseInt(nextValue);
+                                }
+                                catch (e) {
+                                    params[longKey] = nextValue;
+                                }
+                                param = nextParam;
+                            }                            
                             else {
                                 if (Array.isArray(this.defaults[longKey]))
                                     params[longKey] = this.append(params[longKey], nextValue);
