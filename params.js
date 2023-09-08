@@ -1,5 +1,7 @@
 /**
  * @file params.js
+ * 
+ * 
  */
 
 const path = require('path');
@@ -205,7 +207,7 @@ Params.prototype.parse = function () {
                                 }
                             }
 
-                            if ((typeof nextValue == 'boolean' && nextValue === true || nextValue == false) &&
+                            if ((typeof nextValue == 'boolean' && (nextValue === true || nextValue === false)) &&
                                 (params[longKey] !== true && params[longKey] !== false)) {
                                 logError("A non boolean value is required for options: " + longKey);
                             }
